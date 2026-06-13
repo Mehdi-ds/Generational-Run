@@ -1,0 +1,1226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GENERATIONAL RUN // PHASE I</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&family=Rajdhani:wght@300;400;600;700&display=swap');
+:root{
+  --bg:#050505;--bg2:#0a0a0f;
+  --cyan:#00f5ff;--cyan-dim:#00b8cc;
+  --purple:#b44fff;--purple-dim:#7a2fa8;
+  --blue:#0066ff;--blue-bright:#2288ff;
+  --glass:rgba(0,245,255,0.04);
+  --glass-border:rgba(0,245,255,0.15);
+  --glass-border-h:rgba(0,245,255,0.45);
+  --text:#c8e6ea;--text-dim:#5a7880;
+  --red:#ff2244;--green:#00ff88;--orange:#ff8800;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Rajdhani',sans-serif;font-size:15px;min-height:100vh;overflow-x:hidden;position:relative}
+#particles-canvas{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;opacity:.55}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,245,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,245,255,.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
+body::after{content:'';position:fixed;top:-3px;left:0;width:100%;height:3px;background:linear-gradient(90deg,transparent,rgba(0,245,255,.6),transparent);animation:scanline 8s linear infinite;pointer-events:none;z-index:999}
+@keyframes scanline{0%{top:-3px}100%{top:100vh}}
+.wrapper{position:relative;z-index:1;max-width:1400px;margin:0 auto;padding:20px 16px 60px}
+.panel{background:var(--glass);border:1px solid var(--glass-border);border-radius:12px;padding:22px;backdrop-filter:blur(8px);transition:border-color .3s,box-shadow .3s;position:relative;overflow:hidden}
+.panel::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--cyan),transparent);opacity:.5}
+.panel:hover{border-color:var(--glass-border-h);box-shadow:0 0 24px rgba(0,245,255,.08),inset 0 0 24px rgba(0,245,255,.02)}
+.panel.purple-panel::before{background:linear-gradient(90deg,transparent,var(--purple),transparent)}
+.panel.purple-panel:hover{border-color:rgba(180,79,255,.45);box-shadow:0 0 24px rgba(180,79,255,.08)}
+.section-label{font-family:'Orbitron',monospace;font-size:10px;letter-spacing:4px;color:var(--cyan-dim);text-transform:uppercase;margin-bottom:4px}
+.section-title{font-family:'Orbitron',monospace;font-size:14px;font-weight:700;color:var(--cyan);letter-spacing:2px;text-shadow:0 0 10px rgba(0,245,255,.5);margin-bottom:18px;display:flex;align-items:center;gap:10px}
+.section-title .icon{font-size:16px}
+/* NAV */
+.nav-bar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px;padding:12px 16px;background:rgba(0,0,0,.4);border:1px solid var(--glass-border);border-radius:10px;backdrop-filter:blur(8px);position:sticky;top:8px;z-index:100}
+.nav-btn{background:transparent;border:1px solid var(--glass-border);color:var(--text-dim);font-family:'Orbitron',monospace;font-size:9px;letter-spacing:1px;padding:6px 10px;border-radius:4px;cursor:pointer;transition:all .2s;white-space:nowrap}
+.nav-btn:hover,.nav-btn.active{border-color:var(--cyan);color:var(--cyan);background:rgba(0,245,255,.06);box-shadow:0 0 8px rgba(0,245,255,.2)}
+.page{display:none}.page.active{display:block}
+/* HEADER */
+.header{text-align:center;margin-bottom:28px;padding:32px 20px 28px}
+.header-eyebrow{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--purple);letter-spacing:6px;margin-bottom:10px;text-shadow:0 0 8px var(--purple);animation:flicker 6s step-end infinite}
+@keyframes flicker{0%,94%,96%,98%,100%{opacity:1}95%,97%,99%{opacity:.4}}
+.header h1{font-family:'Orbitron',monospace;font-size:clamp(22px,5vw,48px);font-weight:900;letter-spacing:4px;background:linear-gradient(135deg,var(--cyan),var(--blue-bright),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 0 12px rgba(0,245,255,.4));line-height:1.1}
+.header-slash{font-family:'Orbitron',monospace;font-size:clamp(14px,2.5vw,22px);color:var(--cyan-dim);letter-spacing:8px;margin-top:4px;opacity:.7}
+.header-meta{display:flex;justify-content:center;align-items:center;gap:24px;margin-top:18px;flex-wrap:wrap}
+.header-clock{font-family:'Share Tech Mono',monospace;font-size:13px;color:var(--cyan);letter-spacing:2px;text-shadow:0 0 8px var(--cyan)}
+.header-date{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-dim);letter-spacing:1px}
+.quote-box{margin-top:18px;padding:12px 20px;border-left:2px solid var(--purple);background:rgba(180,79,255,.05);border-radius:0 8px 8px 0;max-width:600px;margin-left:auto;margin-right:auto}
+.quote-box p{font-style:italic;color:var(--text-dim);font-size:13px;line-height:1.6}
+/* GRIDS */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.grid-main{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:900px){.grid-2{grid-template-columns:1fr}.grid-3{grid-template-columns:1fr 1fr}.grid-main{grid-template-columns:1fr}}
+@media(max-width:560px){.grid-3{grid-template-columns:1fr}}
+.mb16{margin-bottom:16px}.mb24{margin-bottom:24px}
+/* XP STRIP */
+.xp-strip{display:flex;align-items:center;gap:14px;padding:14px 20px;margin-bottom:16px;flex-wrap:wrap}
+.xp-level-badge{font-family:'Orbitron',monospace;font-size:10px;letter-spacing:2px;padding:4px 12px;border:1px solid var(--purple);color:var(--purple);border-radius:4px;text-shadow:0 0 6px var(--purple);box-shadow:0 0 10px rgba(180,79,255,.2);white-space:nowrap}
+.xp-bar-wrap{flex:1;min-width:120px}
+.xp-bar-label{display:flex;justify-content:space-between;font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);margin-bottom:4px}
+.xp-bar-track{height:6px;background:rgba(0,245,255,.1);border-radius:3px;overflow:hidden}
+.xp-bar-fill{height:100%;background:linear-gradient(90deg,var(--blue),var(--purple));border-radius:3px;transition:width .6s ease;box-shadow:0 0 8px rgba(180,79,255,.6)}
+.xp-total{font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--cyan);text-shadow:0 0 6px var(--cyan);white-space:nowrap}
+/* MISSION CONTROL */
+.mc-inner{display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap}
+.mc-goal{flex:1;min-width:200px}
+.mc-goal-label{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--purple);letter-spacing:3px;margin-bottom:4px}
+.mc-goal-text{font-family:'Orbitron',monospace;font-size:clamp(11px,2vw,14px);color:var(--text);letter-spacing:1px}
+.mc-countdown{text-align:center;padding:12px 24px;border:1px solid rgba(180,79,255,.3);border-radius:8px;background:rgba(180,79,255,.05)}
+.mc-days{font-family:'Orbitron',monospace;font-size:clamp(28px,5vw,52px);font-weight:900;color:var(--purple);text-shadow:0 0 20px var(--purple),0 0 40px rgba(180,79,255,.4);line-height:1;animation:pulseglow 3s ease-in-out infinite}
+@keyframes pulseglow{0%,100%{text-shadow:0 0 20px var(--purple),0 0 40px rgba(180,79,255,.4)}50%{text-shadow:0 0 30px var(--purple),0 0 60px rgba(180,79,255,.7),0 0 80px rgba(180,79,255,.3)}}
+.mc-days-label{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);letter-spacing:3px;margin-top:4px}
+.mc-status{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--green);letter-spacing:2px;text-shadow:0 0 6px var(--green);display:flex;align-items:center;gap:6px}
+.mc-status::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:blink 1.5s step-end infinite}
+@keyframes blink{50%{opacity:0}}
+/* INPUTS */
+.cyber-input{background:rgba(0,245,255,.04);border:1px solid var(--glass-border);border-radius:6px;color:var(--text);font-family:'Rajdhani',sans-serif;font-size:14px;padding:8px 12px;outline:none;transition:border-color .2s,box-shadow .2s;width:100%}
+.cyber-input:focus{border-color:var(--cyan);box-shadow:0 0 10px rgba(0,245,255,.15)}
+.cyber-input::placeholder{color:var(--text-dim)}
+select.cyber-input option{background:#0a0a14;color:var(--text)}
+.cyber-textarea{background:rgba(0,245,255,.04);border:1px solid var(--glass-border);border-radius:6px;color:var(--text);font-family:'Rajdhani',sans-serif;font-size:14px;padding:8px 12px;outline:none;resize:vertical;min-height:70px;transition:border-color .2s,box-shadow .2s;width:100%}
+.cyber-textarea:focus{border-color:var(--cyan);box-shadow:0 0 10px rgba(0,245,255,.15)}
+.cyber-btn{background:transparent;border:1px solid var(--cyan);color:var(--cyan);font-family:'Orbitron',monospace;font-size:10px;letter-spacing:1px;padding:8px 14px;border-radius:6px;cursor:pointer;transition:all .2s;white-space:nowrap}
+.cyber-btn:hover{background:rgba(0,245,255,.1);box-shadow:0 0 12px rgba(0,245,255,.3)}
+.cyber-btn.purple{border-color:var(--purple);color:var(--purple)}
+.cyber-btn.purple:hover{background:rgba(180,79,255,.1);box-shadow:0 0 12px rgba(180,79,255,.3)}
+.cyber-btn.red{border-color:var(--red);color:var(--red)}
+.cyber-btn.red:hover{background:rgba(255,34,68,.1);box-shadow:0 0 12px rgba(255,34,68,.3)}
+.cyber-btn.green{border-color:var(--green);color:var(--green)}
+.cyber-btn.green:hover{background:rgba(0,255,136,.1);box-shadow:0 0 12px rgba(0,255,136,.3)}
+.cyber-btn.sm{font-size:9px;padding:4px 8px}
+/* TASKS */
+.task-input-row{display:flex;gap:8px;margin-bottom:14px}
+.task-input-row .cyber-input{flex:1}
+.task-progress-row{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.task-progress-track{flex:1;height:4px;background:rgba(0,245,255,.1);border-radius:2px;overflow:hidden}
+.task-progress-fill{height:100%;background:linear-gradient(90deg,var(--cyan),var(--blue-bright));border-radius:2px;transition:width .4s ease;box-shadow:0 0 6px rgba(0,245,255,.5)}
+.task-progress-pct{font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--cyan);min-width:36px;text-align:right}
+.task-list{display:flex;flex-direction:column;gap:8px}
+.task-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--glass-border);border-radius:6px;background:rgba(0,0,0,.3);transition:all .2s;position:relative;overflow:hidden}
+.task-item::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--cyan);opacity:0;transition:opacity .3s}
+.task-item.done::before{opacity:1}
+.task-item.done{opacity:.5}
+.task-item.done .task-text{text-decoration:line-through;color:var(--text-dim)}
+.task-cb{-webkit-appearance:none;appearance:none;width:16px;height:16px;border:1px solid var(--cyan-dim);border-radius:3px;cursor:pointer;flex-shrink:0;position:relative;transition:all .2s;background:transparent}
+.task-cb:checked{background:var(--cyan);border-color:var(--cyan);box-shadow:0 0 8px rgba(0,245,255,.5)}
+.task-cb:checked::after{content:'✓';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#000;font-size:10px;font-weight:900}
+.task-text{flex:1;font-size:14px;font-weight:600}
+.task-del{background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:12px;padding:2px 4px;transition:color .2s}
+.task-del:hover{color:var(--red)}
+/* TIMER */
+.timer-display{text-align:center;padding:20px 0}
+.timer-digits{font-family:'Orbitron',monospace;font-size:clamp(40px,8vw,72px);font-weight:900;color:var(--cyan);text-shadow:0 0 20px var(--cyan),0 0 40px rgba(0,245,255,.3);letter-spacing:4px;transition:color .3s}
+.timer-digits.paused{color:var(--orange);text-shadow:0 0 20px var(--orange)}
+.timer-digits.running{animation:timerPulse 1s step-end infinite}
+@keyframes timerPulse{50%{text-shadow:0 0 30px var(--cyan),0 0 60px rgba(0,245,255,.5)}}
+.timer-mode-label{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-dim);letter-spacing:3px;margin-top:6px}
+.timer-modes{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:16px}
+.mode-btn{background:transparent;border:1px solid var(--glass-border);color:var(--text-dim);font-family:'Orbitron',monospace;font-size:9px;letter-spacing:1px;padding:6px 12px;border-radius:4px;cursor:pointer;transition:all .2s}
+.mode-btn.active{border-color:var(--cyan);color:var(--cyan);background:rgba(0,245,255,.08);box-shadow:0 0 8px rgba(0,245,255,.2)}
+.timer-controls{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:16px}
+.custom-time-row{display:flex;gap:8px;justify-content:center;align-items:center;margin-bottom:14px}
+.custom-time-row input{width:70px;text-align:center}
+.focus-stats{display:flex;justify-content:space-between;padding:12px 0;border-top:1px solid var(--glass-border);gap:10px;flex-wrap:wrap}
+.focus-stat-item{text-align:center;flex:1}
+.focus-stat-val{font-family:'Orbitron',monospace;font-size:18px;color:var(--cyan);text-shadow:0 0 10px rgba(0,245,255,.4)}
+.focus-stat-lbl{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text-dim);letter-spacing:2px;margin-top:2px}
+/* COURSE */
+.course-add-form{display:grid;grid-template-columns:1fr auto auto;gap:8px;margin-bottom:14px}
+@media(max-width:500px){.course-add-form{grid-template-columns:1fr 1fr}.course-add-form .cyber-btn{grid-column:span 2}}
+.course-list{display:flex;flex-direction:column;gap:10px}
+.course-item{padding:12px;border:1px solid var(--glass-border);border-radius:8px;background:rgba(0,0,0,.3)}
+.course-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;gap:8px;flex-wrap:wrap}
+.course-name{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px;color:var(--text)}
+.course-meta{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);white-space:nowrap}
+.course-bar-track{height:6px;background:rgba(0,245,255,.08);border-radius:3px;overflow:hidden;margin-bottom:4px}
+.course-bar-fill{height:100%;border-radius:3px;transition:width .5s ease}
+.course-bar-fill.high{background:linear-gradient(90deg,var(--cyan),var(--green));box-shadow:0 0 6px rgba(0,255,136,.5)}
+.course-bar-fill.mid{background:linear-gradient(90deg,var(--blue),var(--cyan));box-shadow:0 0 6px rgba(0,245,255,.4)}
+.course-bar-fill.low{background:linear-gradient(90deg,var(--purple),var(--blue));box-shadow:0 0 6px rgba(180,79,255,.4)}
+.course-footer{display:flex;justify-content:space-between;align-items:center}
+.course-pct{font-family:'Orbitron',monospace;font-size:11px;color:var(--cyan)}
+.course-rem{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim)}
+.course-input-row{display:flex;gap:8px;align-items:center;margin-top:6px}
+.course-input-row input{width:60px;text-align:center}
+/* NOTES */
+.note-search-row{display:flex;gap:8px;margin-bottom:12px}
+.note-add-row{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+.note-list{display:flex;flex-direction:column;gap:10px;max-height:320px;overflow-y:auto}
+.note-list::-webkit-scrollbar{width:4px}
+.note-list::-webkit-scrollbar-thumb{background:var(--cyan-dim);border-radius:2px}
+.note-item{padding:12px;border:1px solid var(--glass-border);border-radius:6px;background:rgba(0,0,0,.3);transition:border-color .2s}
+.note-item:hover{border-color:rgba(0,245,255,.25)}
+.note-title{font-family:'Orbitron',monospace;font-size:11px;color:var(--cyan);margin-bottom:4px;letter-spacing:1px}
+.note-body{font-size:13px;color:var(--text-dim);line-height:1.5;white-space:pre-wrap;word-break:break-word}
+.note-actions{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.note-date{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text-dim);margin-left:auto;align-self:center}
+/* HABITS */
+.habit-add-row{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.habit-add-row .cyber-input{flex:1;min-width:140px}
+.habit-grid{display:flex;flex-direction:column;gap:10px}
+.habit-item{display:flex;align-items:center;gap:10px;padding:10px 14px;border:1px solid var(--glass-border);border-radius:8px;background:rgba(0,0,0,.3);transition:all .2s;flex-wrap:wrap}
+.habit-name{flex:1;font-weight:700;font-size:14px;min-width:100px}
+.habit-toggle{background:none;border:1px solid var(--glass-border);border-radius:4px;padding:4px 10px;font-family:'Share Tech Mono',monospace;font-size:10px;cursor:pointer;transition:all .2s;color:var(--text-dim)}
+.habit-toggle.done{border-color:var(--green);color:var(--green);background:rgba(0,255,136,.08);box-shadow:0 0 8px rgba(0,255,136,.2)}
+.habit-streak{font-family:'Orbitron',monospace;font-size:13px;color:var(--orange);text-shadow:0 0 8px rgba(255,136,0,.5);min-width:50px;text-align:right}
+.habit-consistency{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);white-space:nowrap}
+/* STATS */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:12px}
+.stat-box{padding:14px;border:1px solid var(--glass-border);border-radius:8px;background:rgba(0,0,0,.3);text-align:center;transition:all .2s}
+.stat-box:hover{border-color:var(--cyan-dim);box-shadow:0 0 12px rgba(0,245,255,.08)}
+.stat-val{font-family:'Orbitron',monospace;font-size:clamp(18px,3vw,28px);font-weight:900;color:var(--cyan);text-shadow:0 0 10px rgba(0,245,255,.4);line-height:1}
+.stat-lbl{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text-dim);letter-spacing:2px;margin-top:5px;text-transform:uppercase}
+/* STUDY LOG */
+.log-filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.log-filters .cyber-input{flex:1;min-width:120px}
+.log-timeline{display:flex;flex-direction:column;gap:14px;max-height:500px;overflow-y:auto;padding-right:4px}
+.log-timeline::-webkit-scrollbar{width:4px}
+.log-timeline::-webkit-scrollbar-thumb{background:var(--cyan-dim);border-radius:2px}
+.log-entry{display:flex;gap:14px}
+.log-line{display:flex;flex-direction:column;align-items:center}
+.log-dot{width:10px;height:10px;border-radius:50%;background:var(--cyan);box-shadow:0 0 8px var(--cyan);flex-shrink:0;margin-top:4px}
+.log-vert{flex:1;width:1px;background:linear-gradient(to bottom,var(--cyan),transparent);margin-top:4px;min-height:30px}
+.log-card{flex:1;padding:12px 14px;border:1px solid var(--glass-border);border-radius:8px;background:rgba(0,0,0,.3);transition:border-color .2s}
+.log-card:hover{border-color:rgba(0,245,255,.3)}
+.log-date{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--cyan);letter-spacing:2px;margin-bottom:4px}
+.log-topic{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:15px;color:var(--text)}
+.log-course{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--purple);margin-bottom:4px}
+.log-ch{font-family:'Orbitron',monospace;font-size:11px;color:var(--green)}
+.log-notes-text{font-size:12px;color:var(--text-dim);margin-top:4px;white-space:pre-wrap}
+.log-actions{display:flex;gap:6px;margin-top:8px}
+/* HEATMAP */
+.heatmap-wrap{overflow-x:auto;padding-bottom:8px}
+.heatmap-grid{display:grid;grid-template-rows:repeat(7,14px);grid-auto-flow:column;gap:3px;width:max-content}
+.hm-cell{width:14px;height:14px;border-radius:2px;background:rgba(0,245,255,.05);cursor:pointer;transition:all .2s;position:relative}
+.hm-cell:hover{transform:scale(1.4);z-index:10}
+.hm-cell.lvl1{background:rgba(0,245,255,.15);box-shadow:0 0 4px rgba(0,245,255,.2)}
+.hm-cell.lvl2{background:rgba(0,245,255,.35);box-shadow:0 0 6px rgba(0,245,255,.4)}
+.hm-cell.lvl3{background:rgba(0,245,255,.65);box-shadow:0 0 10px rgba(0,245,255,.7)}
+.hm-cell.lvl4{background:rgba(0,245,255,1);box-shadow:0 0 14px var(--cyan),0 0 28px rgba(0,245,255,.5)}
+.heatmap-tooltip{position:fixed;background:rgba(5,5,15,.95);border:1px solid var(--cyan);border-radius:6px;padding:8px 12px;font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--cyan);pointer-events:none;z-index:1000;display:none;max-width:200px}
+.hm-legend{display:flex;align-items:center;gap:6px;margin-top:8px;font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim)}
+.hm-legend-cell{width:12px;height:12px;border-radius:2px}
+/* ANALYTICS */
+.analytics-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin-bottom:20px}
+.analytics-card{padding:16px;border:1px solid var(--glass-border);border-radius:8px;background:rgba(0,0,0,.3);text-align:center}
+.analytics-card:hover{border-color:var(--cyan-dim)}
+.ac-val{font-family:'Orbitron',monospace;font-size:clamp(20px,3vw,30px);font-weight:900;color:var(--cyan);text-shadow:0 0 12px rgba(0,245,255,.4);line-height:1}
+.ac-lbl{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text-dim);letter-spacing:2px;margin-top:6px;text-transform:uppercase}
+.ac-sub{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--purple);margin-top:4px}
+/* ACHIEVEMENTS */
+.achievements-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px}
+.achievement-card{padding:16px;border:1px solid var(--glass-border);border-radius:8px;background:rgba(0,0,0,.3);text-align:center;transition:all .3s;position:relative;overflow:hidden}
+.achievement-card.unlocked{border-color:var(--orange);box-shadow:0 0 16px rgba(255,136,0,.2)}
+.achievement-card.unlocked::before{background:linear-gradient(90deg,transparent,var(--orange),transparent)}
+.achievement-card.locked{opacity:.4;filter:grayscale(.8)}
+.ach-icon{font-size:28px;margin-bottom:8px}
+.ach-name{font-family:'Orbitron',monospace;font-size:10px;letter-spacing:1px;color:var(--orange);margin-bottom:4px}
+.ach-desc{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text-dim)}
+.ach-unlocked-label{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--green);margin-top:6px;letter-spacing:2px}
+.achievement-unlock-anim{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:9998;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);animation:fadeInOut 3s ease forwards;pointer-events:none}
+.achievement-unlock-inner{text-align:center;padding:40px;border:2px solid var(--orange);border-radius:16px;background:rgba(5,5,15,.95);box-shadow:0 0 40px rgba(255,136,0,.4)}
+@keyframes fadeInOut{0%{opacity:0}15%{opacity:1}80%{opacity:1}100%{opacity:0}}
+/* DATA SAFETY */
+.safety-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+/* FOCUS HISTORY */
+.focus-hist-list{display:flex;flex-direction:column;gap:8px;max-height:280px;overflow-y:auto}
+.focus-hist-item{padding:10px 12px;border:1px solid var(--glass-border);border-radius:6px;background:rgba(0,0,0,.3);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+.fh-date{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim)}
+.fh-dur{font-family:'Orbitron',monospace;font-size:13px;color:var(--cyan)}
+.fh-mode{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--purple)}
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:2000;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);display:none}
+.modal-overlay.show{display:flex}
+.modal-box{background:#0a0a14;border:1px solid var(--cyan);border-radius:12px;padding:28px;max-width:500px;width:90%;position:relative;box-shadow:0 0 40px rgba(0,245,255,.15)}
+.modal-title{font-family:'Orbitron',monospace;font-size:13px;color:var(--cyan);letter-spacing:2px;margin-bottom:18px}
+.modal-fields{display:flex;flex-direction:column;gap:10px}
+.modal-row{display:flex;gap:8px}
+.modal-actions{display:flex;gap:10px;margin-top:18px;justify-content:flex-end}
+.modal-close{position:absolute;top:12px;right:14px;background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:18px}
+.modal-close:hover{color:var(--red)}
+/* TOAST */
+#toast{position:fixed;bottom:30px;right:20px;background:rgba(0,245,255,.12);border:1px solid var(--cyan);color:var(--cyan);font-family:'Share Tech Mono',monospace;font-size:12px;padding:10px 18px;border-radius:6px;letter-spacing:1px;z-index:9999;transform:translateY(20px);opacity:0;transition:all .3s;pointer-events:none;box-shadow:0 0 16px rgba(0,245,255,.3)}
+#toast.show{opacity:1;transform:translateY(0)}
+.xp-popup{position:fixed;font-family:'Orbitron',monospace;font-size:18px;font-weight:900;color:var(--cyan);text-shadow:0 0 10px var(--cyan);pointer-events:none;z-index:9998;animation:xpFloat 1.5s ease-out forwards}
+@keyframes xpFloat{0%{opacity:1;transform:translateY(0) scale(1)}100%{opacity:0;transform:translateY(-60px) scale(1.3)}}
+/* LOADER */
+#loader{position:fixed;inset:0;background:var(--bg);z-index:10000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px}
+.loader-title{font-family:'Orbitron',monospace;font-size:clamp(14px,3vw,22px);font-weight:900;letter-spacing:4px;background:linear-gradient(135deg,var(--cyan),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;text-align:center}
+.loader-bar-track{width:min(300px,70vw);height:2px;background:rgba(0,245,255,.1);border-radius:1px;overflow:hidden}
+.loader-bar-fill{height:100%;background:linear-gradient(90deg,var(--cyan),var(--purple));border-radius:1px;animation:loaderBar 1.8s ease forwards;box-shadow:0 0 8px var(--cyan)}
+@keyframes loaderBar{from{width:0%}to{width:100%}}
+.loader-status{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-dim);letter-spacing:3px}
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--cyan-dim);border-radius:2px}
+</style>
+</head>
+<body>
+<div id="loader">
+  <div class="loader-title">GENERATIONAL RUN<br>// PHASE I</div>
+  <div class="loader-bar-track"><div class="loader-bar-fill"></div></div>
+  <div class="loader-status">INITIALIZING SYSTEMS...</div>
+</div>
+<canvas id="particles-canvas"></canvas>
+<div id="toast"></div>
+<div class="heatmap-tooltip" id="hm-tooltip"></div>
+
+<!-- MODALS -->
+<div class="modal-overlay" id="modal-study-log">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('modal-study-log')">✕</button>
+    <div class="modal-title">📚 LOG STUDY SESSION</div>
+    <div class="modal-fields">
+      <input class="cyber-input" id="sl-date" type="date">
+      <input class="cyber-input" id="sl-course" placeholder="Course name...">
+      <input class="cyber-input" id="sl-topic" placeholder="Topic studied...">
+      <input class="cyber-input" id="sl-chapters" type="number" placeholder="Chapters completed" min="0">
+      <textarea class="cyber-textarea" id="sl-notes" placeholder="Notes (optional)..." style="min-height:60px"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="cyber-btn" onclick="saveStudyLog()">SAVE SESSION</button>
+      <button class="cyber-btn red" onclick="closeModal('modal-study-log')">CANCEL</button>
+    </div>
+  </div>
+</div>
+<div class="modal-overlay" id="modal-edit-log">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('modal-edit-log')">✕</button>
+    <div class="modal-title">✏️ EDIT STUDY SESSION</div>
+    <div class="modal-fields">
+      <input class="cyber-input" id="el-date" type="date">
+      <input class="cyber-input" id="el-course" placeholder="Course name...">
+      <input class="cyber-input" id="el-topic" placeholder="Topic studied...">
+      <input class="cyber-input" id="el-chapters" type="number" placeholder="Chapters completed" min="0">
+      <textarea class="cyber-textarea" id="el-notes" placeholder="Notes..." style="min-height:60px"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="cyber-btn" onclick="saveEditLog()">UPDATE</button>
+      <button class="cyber-btn red" onclick="closeModal('modal-edit-log')">CANCEL</button>
+    </div>
+  </div>
+</div>
+<div class="modal-overlay" id="modal-mission">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('modal-mission')">✕</button>
+    <div class="modal-title">🎯 EDIT MISSION</div>
+    <div class="modal-fields">
+      <input class="cyber-input" id="mc-edit-goal" placeholder="Your mission goal...">
+      <input class="cyber-input" id="mc-edit-target" type="date">
+    </div>
+    <div class="modal-actions">
+      <button class="cyber-btn" onclick="saveMission()">SAVE MISSION</button>
+      <button class="cyber-btn red" onclick="closeModal('modal-mission')">CANCEL</button>
+    </div>
+  </div>
+</div>
+<div class="modal-overlay" id="modal-habit">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('modal-habit')">✕</button>
+    <div class="modal-title" id="habit-modal-title">➕ ADD HABIT</div>
+    <div class="modal-fields">
+      <input class="cyber-input" id="hm-name" placeholder="Habit name (e.g. No Fap, Pray, Gym)...">
+    </div>
+    <div class="modal-actions">
+      <button class="cyber-btn" onclick="saveHabitModal()">SAVE</button>
+      <button class="cyber-btn red" onclick="closeModal('modal-habit')">CANCEL</button>
+    </div>
+  </div>
+</div>
+<div id="achievement-anim-wrap"></div>
+
+<div class="wrapper">
+<!-- HEADER -->
+<div class="panel header mb16">
+  <div class="header-eyebrow">// DATA SCIENCE MISSION TERMINAL //</div>
+  <h1>GENERATIONAL RUN</h1>
+  <div class="header-slash">// PHASE I //</div>
+  <div class="header-meta">
+    <div class="header-clock" id="clock">--:--:--</div>
+    <div class="header-date" id="date-display">---</div>
+  </div>
+  <div class="quote-box"><p id="quote-text"></p></div>
+</div>
+
+<!-- NAV -->
+<div class="nav-bar">
+  <button class="nav-btn active" onclick="showPage('dashboard')">⚡ DASHBOARD</button>
+  <button class="nav-btn" onclick="showPage('study')">📚 STUDY LOG</button>
+  <button class="nav-btn" onclick="showPage('analytics')">📊 ANALYTICS</button>
+  <button class="nav-btn" onclick="showPage('achievements')">🏆 ACHIEVEMENTS</button>
+  <button class="nav-btn" onclick="showPage('focus')">🎯 FOCUS</button>
+  <button class="nav-btn" onclick="showPage('safety')">💾 DATA</button>
+</div>
+
+<!-- XP STRIP (always visible) -->
+<div class="panel xp-strip mb16">
+  <div class="xp-level-badge" id="level-badge">LEVEL 1 // RECRUIT</div>
+  <div class="xp-bar-wrap">
+    <div class="xp-bar-label"><span id="xp-cur">0 XP</span><span id="xp-next">100 XP to next</span></div>
+    <div class="xp-bar-track"><div class="xp-bar-fill" id="xp-bar" style="width:0%"></div></div>
+  </div>
+  <div class="xp-total" id="xp-total-display">TOTAL: 0 XP</div>
+</div>
+
+<!-- ══════════════════════════════════════ DASHBOARD PAGE ══════════════════════════════════════ -->
+<div class="page active" id="page-dashboard">
+
+<!-- MISSION CONTROL -->
+<div class="panel purple-panel mb16">
+  <div class="section-label">// MISSION CONTROL //</div>
+  <div class="mc-inner">
+    <div class="mc-goal">
+      <div class="mc-goal-label">CURRENT OBJECTIVE</div>
+      <div class="mc-goal-text" id="mc-goal-text">Become a Data Analyst Before Graduation</div>
+      <div style="margin-top:10px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+        <span class="mc-status">MISSION ACTIVE</span>
+        <button class="cyber-btn sm purple" onclick="openMissionEdit()">EDIT MISSION</button>
+      </div>
+    </div>
+    <div class="mc-countdown">
+      <div class="mc-days" id="days-remaining">---</div>
+      <div class="mc-days-label">DAYS REMAINING</div>
+      <div style="margin-top:6px;font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text-dim);letter-spacing:2px" id="mc-target-label">TARGET: 31 DEC 2026</div>
+    </div>
+  </div>
+</div>
+
+<div class="grid-main mb16">
+<!-- DAILY MISSIONS -->
+<div class="panel">
+  <div class="section-label">// OPERATIONS //</div>
+  <div class="section-title"><span class="icon">⚡</span>DAILY MISSIONS</div>
+  <div class="task-input-row">
+    <input class="cyber-input" id="task-input" placeholder="Add new mission..." type="text">
+    <button class="cyber-btn" onclick="addTask()">ADD</button>
+  </div>
+  <div class="task-progress-row">
+    <div class="task-progress-track"><div class="task-progress-fill" id="task-progress-fill" style="width:0%"></div></div>
+    <div class="task-progress-pct" id="task-progress-pct">0%</div>
+  </div>
+  <div class="task-list" id="task-list"></div>
+</div>
+
+<!-- HABITS -->
+<div class="panel">
+  <div class="section-label">// DISCIPLINE MATRIX //</div>
+  <div class="section-title"><span class="icon">🔥</span>HABIT TRACKER</div>
+  <div class="habit-add-row">
+    <button class="cyber-btn" onclick="openAddHabit()" style="white-space:nowrap">+ ADD HABIT</button>
+  </div>
+  <div class="habit-grid" id="habit-grid"></div>
+</div>
+</div><!-- /grid-main -->
+
+<div class="grid-main mb16">
+<!-- FOCUS TIMER -->
+<div class="panel">
+  <div class="section-label">// CONCENTRATION PROTOCOL //</div>
+  <div class="section-title"><span class="icon">🎯</span>FOCUS SESSION</div>
+  <div class="timer-modes">
+    <button class="mode-btn active" id="mode-pomodoro" onclick="setMode('pomodoro')">POMODORO 25/5</button>
+    <button class="mode-btn" id="mode-deep" onclick="setMode('deep')">DEEP WORK 60</button>
+    <button class="mode-btn" id="mode-custom" onclick="setMode('custom')">CUSTOM</button>
+  </div>
+  <div class="custom-time-row" id="custom-row" style="display:none">
+    <input class="cyber-input" id="custom-min" type="number" placeholder="MIN" min="1" max="180" style="width:70px">
+    <span style="color:var(--text-dim);font-family:'Share Tech Mono',monospace">MIN</span>
+    <button class="cyber-btn" onclick="applyCustom()">SET</button>
+  </div>
+  <div class="timer-display">
+    <div class="timer-digits" id="timer-display">25:00</div>
+    <div class="timer-mode-label" id="timer-mode-label">POMODORO // WORK SESSION</div>
+  </div>
+  <div class="timer-controls">
+    <button class="cyber-btn green" id="btn-start" onclick="startTimer()">START</button>
+    <button class="cyber-btn" id="btn-pause" onclick="pauseTimer()" style="display:none">PAUSE</button>
+    <button class="cyber-btn red" onclick="resetTimer()">RESET</button>
+  </div>
+  <div class="focus-stats">
+    <div class="focus-stat-item"><div class="focus-stat-val" id="total-focus-hrs">0.0</div><div class="focus-stat-lbl">TOTAL HRS</div></div>
+    <div class="focus-stat-item"><div class="focus-stat-val" id="sessions-count">0</div><div class="focus-stat-lbl">SESSIONS</div></div>
+    <div class="focus-stat-item"><div class="focus-stat-val" id="today-focus-min">0</div><div class="focus-stat-lbl">TODAY MIN</div></div>
+  </div>
+</div>
+
+<!-- COURSE PROGRESS -->
+<div class="panel">
+  <div class="section-label">// SKILL ACQUISITION //</div>
+  <div class="section-title"><span class="icon">📡</span>COURSE PROGRESS</div>
+  <div class="course-add-form">
+    <input class="cyber-input" id="course-name-in" placeholder="Course name..." type="text">
+    <input class="cyber-input" id="course-total-in" type="number" placeholder="Total" min="1" style="width:70px">
+    <button class="cyber-btn" onclick="addCourse()">ADD</button>
+  </div>
+  <div class="course-list" id="course-list"></div>
+</div>
+</div><!-- /grid-main -->
+
+<!-- KNOWLEDGE VAULT -->
+<div class="panel mb16">
+  <div class="section-label">// DATA STORAGE //</div>
+  <div class="section-title"><span class="icon">🧠</span>KNOWLEDGE VAULT</div>
+  <div class="note-search-row">
+    <input class="cyber-input" id="note-search" placeholder="Search vault..." type="text" oninput="renderNotes()">
+  </div>
+  <div class="note-add-row">
+    <input class="cyber-input" id="note-title-in" placeholder="Note title..." type="text">
+    <textarea class="cyber-textarea" id="note-body-in" placeholder="Enter knowledge to store..."></textarea>
+    <button class="cyber-btn" onclick="addNote()" style="align-self:flex-start">STORE NOTE</button>
+  </div>
+  <div class="note-list" id="note-list"></div>
+</div>
+
+<!-- STATS -->
+<div class="panel">
+  <div class="section-label">// PERFORMANCE METRICS //</div>
+  <div class="section-title"><span class="icon">📊</span>STATS PANEL</div>
+  <div class="stats-grid">
+    <div class="stat-box"><div class="stat-val" id="stat-tasks">0</div><div class="stat-lbl">TASKS DONE</div></div>
+    <div class="stat-box"><div class="stat-val" id="stat-focus">0.0</div><div class="stat-lbl">FOCUS HRS</div></div>
+    <div class="stat-box"><div class="stat-val" id="stat-streak">0</div><div class="stat-lbl">STREAK</div></div>
+    <div class="stat-box"><div class="stat-val" id="stat-longest">0</div><div class="stat-lbl">LONGEST</div></div>
+    <div class="stat-box"><div class="stat-val" id="stat-xp">0</div><div class="stat-lbl">XP EARNED</div></div>
+    <div class="stat-box"><div class="stat-val" id="stat-notes">0</div><div class="stat-lbl">NOTES</div></div>
+    <div class="stat-box"><div class="stat-val" id="stat-chapters">0</div><div class="stat-lbl">CHAPTERS</div></div>
+    <div class="stat-box"><div class="stat-val" id="stat-sessions">0</div><div class="stat-lbl">STUDY LOG</div></div>
+  </div>
+</div>
+</div><!-- /page-dashboard -->
+
+<!-- ══════════════════════════════════════ STUDY LOG PAGE ══════════════════════════════════════ -->
+<div class="page" id="page-study">
+<div class="panel mb16">
+  <div class="section-label">// KNOWLEDGE HISTORY //</div>
+  <div class="section-title"><span class="icon">📚</span>STUDY LOG</div>
+  <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap">
+    <button class="cyber-btn" onclick="openStudyLogModal()">+ LOG SESSION</button>
+  </div>
+  <div class="log-filters">
+    <input class="cyber-input" id="sl-search" placeholder="Search topics..." type="text" oninput="renderStudyLog()">
+    <select class="cyber-input" id="sl-filter-course" onchange="renderStudyLog()" style="max-width:180px">
+      <option value="">All Courses</option>
+    </select>
+    <select class="cyber-input" id="sl-filter-period" onchange="renderStudyLog()" style="max-width:140px">
+      <option value="">All Time</option>
+      <option value="week">This Week</option>
+      <option value="month">This Month</option>
+    </select>
+    <input class="cyber-input" id="sl-filter-date" type="date" onchange="renderStudyLog()" style="max-width:160px">
+  </div>
+  <div class="log-timeline" id="study-log-list"></div>
+</div>
+</div><!-- /page-study -->
+
+<!-- ══════════════════════════════════════ ANALYTICS PAGE ══════════════════════════════════════ -->
+<div class="page" id="page-analytics">
+<div class="panel mb16">
+  <div class="section-label">// DATA INTELLIGENCE //</div>
+  <div class="section-title"><span class="icon">📊</span>ANALYTICS DASHBOARD</div>
+  <div class="analytics-grid" id="analytics-cards"></div>
+</div>
+<div class="panel">
+  <div class="section-label">// CONTRIBUTION GRAPH //</div>
+  <div class="section-title"><span class="icon">🗓️</span>STUDY HEATMAP</div>
+  <div class="heatmap-wrap">
+    <div class="heatmap-grid" id="heatmap-grid"></div>
+  </div>
+  <div class="hm-legend">
+    <span>LESS</span>
+    <div class="hm-legend-cell" style="background:rgba(0,245,255,.05)"></div>
+    <div class="hm-legend-cell hm-cell lvl1"></div>
+    <div class="hm-legend-cell hm-cell lvl2"></div>
+    <div class="hm-legend-cell hm-cell lvl3"></div>
+    <div class="hm-legend-cell hm-cell lvl4"></div>
+    <span>MORE</span>
+  </div>
+</div>
+</div><!-- /page-analytics -->
+
+<!-- ══════════════════════════════════════ ACHIEVEMENTS PAGE ══════════════════════════════════════ -->
+<div class="page" id="page-achievements">
+<div class="panel">
+  <div class="section-label">// PROGRESSION RECORDS //</div>
+  <div class="section-title"><span class="icon">🏆</span>ACHIEVEMENTS</div>
+  <div class="achievements-grid" id="achievements-grid"></div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════ FOCUS PAGE ══════════════════════════════════════ -->
+<div class="page" id="page-focus">
+<div class="panel mb16">
+  <div class="section-label">// FOCUS INTELLIGENCE //</div>
+  <div class="section-title"><span class="icon">📈</span>FOCUS ANALYTICS</div>
+  <div class="analytics-grid" id="focus-analytics-cards"></div>
+</div>
+<div class="panel">
+  <div class="section-label">// SESSION HISTORY //</div>
+  <div class="section-title"><span class="icon">⏱️</span>FOCUS HISTORY</div>
+  <div class="focus-hist-list" id="focus-hist-list"></div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════ DATA SAFETY PAGE ══════════════════════════════════════ -->
+<div class="page" id="page-safety">
+<div class="panel">
+  <div class="section-label">// DATA MANAGEMENT //</div>
+  <div class="section-title"><span class="icon">💾</span>DATA SAFETY</div>
+  <div class="safety-row">
+    <button class="cyber-btn green" onclick="exportData()">⬇ EXPORT JSON BACKUP</button>
+    <button class="cyber-btn" onclick="document.getElementById('import-file').click()">⬆ IMPORT JSON BACKUP</button>
+    <input type="file" id="import-file" accept=".json" style="display:none" onchange="importData(this)">
+    <button class="cyber-btn red" onclick="confirmReset()">⚠ RESET ALL DATA</button>
+  </div>
+  <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-dim);line-height:1.8;padding:16px;border:1px solid var(--glass-border);border-radius:8px;background:rgba(0,0,0,.3)">
+    <div style="color:var(--cyan);margin-bottom:8px;letter-spacing:2px">// SYSTEM INFO //</div>
+    <div>EXPORT → Downloads all your data as a JSON file you can back up anywhere.</div>
+    <div>IMPORT → Loads a previously exported JSON backup. Overwrites current data.</div>
+    <div style="color:var(--red);margin-top:8px">RESET → Permanently wipes all data. Cannot be undone.</div>
+    <div style="margin-top:12px;color:var(--text-dim)">Storage size: <span id="storage-size">---</span></div>
+  </div>
+</div>
+</div>
+
+</div><!-- /wrapper -->
+<script>
+// ═══════════════════════════════
+//  PARTICLES
+// ═══════════════════════════════
+(function(){
+  const canvas=document.getElementById('particles-canvas');
+  const ctx=canvas.getContext('2d');
+  let W,H,particles=[];
+  function resize(){W=canvas.width=window.innerWidth;H=canvas.height=window.innerHeight}
+  function cp(){return{x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.5+.5,vx:(Math.random()-.5)*.3,vy:(Math.random()-.5)*.3,alpha:Math.random()*.5+.1,color:Math.random()<.6?'0,245,255':Math.random()<.5?'180,79,255':'0,102,255'}}
+  function init(){resize();particles=Array.from({length:80},cp)}
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    particles.forEach(p=>{
+      p.x+=p.vx;p.y+=p.vy;
+      if(p.x<0)p.x=W;if(p.x>W)p.x=0;if(p.y<0)p.y=H;if(p.y>H)p.y=0;
+      ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle=`rgba(${p.color},${p.alpha})`;ctx.fill();
+    });
+    for(let i=0;i<particles.length;i++){for(let j=i+1;j<particles.length;j++){
+      const dx=particles[i].x-particles[j].x,dy=particles[i].y-particles[j].y,d=Math.sqrt(dx*dx+dy*dy);
+      if(d<100){ctx.beginPath();ctx.moveTo(particles[i].x,particles[i].y);ctx.lineTo(particles[j].x,particles[j].y);ctx.strokeStyle=`rgba(0,245,255,${.06*(1-d/100)})`;ctx.lineWidth=.5;ctx.stroke()}
+    }}
+    requestAnimationFrame(draw);
+  }
+  window.addEventListener('resize',resize);init();draw();
+})();
+
+// ═══════════════════════════════
+//  DATA STORE
+// ═══════════════════════════════
+const SK='GENRUN_PHASE1';
+function loadData(){try{return JSON.parse(localStorage.getItem(SK))||{}}catch{return{}}}
+function saveData(d){localStorage.setItem(SK,JSON.stringify(d))}
+let DATA=loadData();
+function ensure(k,d){if(DATA[k]===undefined)DATA[k]=typeof d==='function'?d():d;return DATA[k]}
+
+// ═══════════════════════════════
+//  NAV
+// ═══════════════════════════════
+function showPage(p){
+  document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(el=>el.classList.remove('active'));
+  document.getElementById('page-'+p).classList.add('active');
+  event.currentTarget.classList.add('active');
+  if(p==='analytics'){renderAnalytics();renderHeatmap()}
+  if(p==='achievements'){renderAchievements()}
+  if(p==='focus'){renderFocusPage()}
+  if(p==='safety'){updateStorageSize()}
+  if(p==='study'){renderStudyLog();populateCourseFilter()}
+}
+
+// ═══════════════════════════════
+//  QUOTES + CLOCK
+// ═══════════════════════════════
+const QUOTES=[
+  "The grind you do in silence becomes the success that speaks for itself.",
+  "Every line of code you write today is a brick in the empire of tomorrow.",
+  "Your family's future is being built right now, in this session.",
+  "Data science is not a destination — it's the weapon you forge daily.",
+  "Consistency over intensity. Show up even when you don't feel it.",
+  "The only algorithm that matters: work harder than yesterday.",
+  "Pain is temporary. The data analyst badge is forever.",
+  "You are not just learning. You are becoming someone unrecognizable.",
+  "Every dataset tells a story. Make sure yours is worth reading.",
+  "The version of you that graduates will thank the version grinding now.",
+  "Discipline is the bridge between goals and accomplishments.",
+  "Run your generational race. No shortcuts. No excuses. No looking back.",
+  "Ek baar thak, toot mat — the grind always pays.",
+  "Maa baap ke sapno ka data science roadmap chal raha hai. Keep going.",
+];
+document.getElementById('quote-text').textContent=QUOTES[Math.floor(Math.random()*QUOTES.length)];
+
+function updateClock(){
+  const now=new Date();
+  const pad=n=>String(n).padStart(2,'0');
+  document.getElementById('clock').textContent=`${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+  const days=['SUN','MON','TUE','WED','THU','FRI','SAT'];
+  const months=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+  document.getElementById('date-display').textContent=`${days[now.getDay()]} // ${pad(now.getDate())} ${months[now.getMonth()]} ${now.getFullYear()}`;
+  // countdown
+  const target=new Date(ensure('missionTarget','2026-12-31')+'T23:59:59');
+  const diff=Math.max(0,Math.floor((target-now)/86400000));
+  document.getElementById('days-remaining').textContent=diff;
+}
+setInterval(updateClock,1000);updateClock();
+
+// ═══════════════════════════════
+//  TOAST & XP POPUP
+// ═══════════════════════════════
+function toast(msg){
+  const t=document.getElementById('toast');t.textContent=msg;
+  t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);
+}
+function spawnXPPopup(text){
+  const el=document.createElement('div');el.className='xp-popup';el.textContent=text;
+  el.style.left=`${Math.random()*60+20}vw`;el.style.top=`${Math.random()*40+30}vh`;
+  document.body.appendChild(el);setTimeout(()=>el.remove(),1600);
+}
+
+// ═══════════════════════════════
+//  MODALS
+// ═══════════════════════════════
+function openModal(id){document.getElementById(id).classList.add('show')}
+function closeModal(id){document.getElementById(id).classList.remove('show')}
+document.querySelectorAll('.modal-overlay').forEach(m=>{
+  m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('show')});
+});
+
+// ═══════════════════════════════
+//  MISSION CONTROL
+// ═══════════════════════════════
+function renderMission(){
+  document.getElementById('mc-goal-text').textContent=ensure('missionGoal','Become a Data Analyst Before Graduation');
+  const t=ensure('missionTarget','2026-12-31');
+  const d=new Date(t+'T00:00:00');
+  const months=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+  document.getElementById('mc-target-label').textContent=`TARGET: ${String(d.getDate()).padStart(2,'0')} ${months[d.getMonth()]} ${d.getFullYear()}`;
+}
+function openMissionEdit(){
+  document.getElementById('mc-edit-goal').value=ensure('missionGoal','Become a Data Analyst Before Graduation');
+  document.getElementById('mc-edit-target').value=ensure('missionTarget','2026-12-31');
+  openModal('modal-mission');
+}
+function saveMission(){
+  const g=document.getElementById('mc-edit-goal').value.trim();
+  const t=document.getElementById('mc-edit-target').value;
+  if(!g){toast('ENTER A MISSION GOAL');return}
+  DATA.missionGoal=g;if(t)DATA.missionTarget=t;
+  saveData(DATA);renderMission();closeModal('modal-mission');toast('MISSION UPDATED');
+}
+renderMission();
+
+// ═══════════════════════════════
+//  XP SYSTEM
+// ═══════════════════════════════
+const LEVELS=[{name:'RECRUIT',min:0},{name:'OPERATOR',min:100},{name:'ANALYST',min:300},{name:'ARCHITECT',min:700},{name:'ELITE',min:1500}];
+function getLevelIdx(xp){let l=0;for(let i=0;i<LEVELS.length;i++)if(xp>=LEVELS[i].min)l=i;return l}
+function addXP(amount,label){
+  ensure('xp',0);DATA.xp+=amount;saveData(DATA);renderXP();spawnXPPopup(`+${amount} XP`);
+  if(label)toast(`${label} // +${amount} XP`);
+  checkAchievements();
+}
+function renderXP(){
+  const xp=ensure('xp',0);const li=getLevelIdx(xp);const level=LEVELS[li];const next=LEVELS[li+1];
+  document.getElementById('xp-total-display').textContent=`TOTAL: ${xp} XP`;
+  document.getElementById('level-badge').textContent=`LEVEL ${li+1} // ${level.name}`;
+  document.getElementById('xp-cur').textContent=`${xp} XP`;
+  let pct=100,nextText='MAX LEVEL';
+  if(next){const span=next.min-level.min;const prog=xp-level.min;pct=Math.min(100,Math.round(prog/span*100));nextText=`${next.min-xp} XP to ${next.name}`}
+  document.getElementById('xp-bar').style.width=pct+'%';
+  document.getElementById('xp-next').textContent=nextText;
+  document.getElementById('stat-xp').textContent=xp;
+}
+renderXP();
+
+// ═══════════════════════════════
+//  TASKS
+// ═══════════════════════════════
+const DEFAULT_TASKS=['Complete CodeWithHarry Data Science Course','Study Python','Practice SQL','Gym','Read 10 Pages','No Doom Scrolling'];
+function getTodayKey(){return new Date().toISOString().slice(0,10)}
+function initTasks(){
+  const k=getTodayKey();
+  if(!DATA.tasks||DATA.tasksDay!==k){
+    DATA.tasks=DEFAULT_TASKS.map((t,i)=>({id:i,text:t,done:false}));
+    DATA.tasksDay=k;DATA.taskNextId=DEFAULT_TASKS.length;saveData(DATA);
+  }
+}
+function addTask(){
+  const inp=document.getElementById('task-input');const txt=inp.value.trim();if(!txt)return;
+  ensure('taskNextId',100);DATA.tasks.push({id:DATA.taskNextId++,text:txt,done:false});
+  inp.value='';saveData(DATA);renderTasks();toast('MISSION ADDED');
+}
+document.getElementById('task-input').addEventListener('keydown',e=>{if(e.key==='Enter')addTask()});
+function toggleTask(id){
+  const t=DATA.tasks.find(t=>t.id===id);if(!t)return;
+  const was=t.done;t.done=!t.done;saveData(DATA);renderTasks();
+  if(!was){ensure('totalTasksDone',0);DATA.totalTasksDone++;saveData(DATA);addXP(10,'MISSION COMPLETE');renderStats()}
+}
+function deleteTask(id){DATA.tasks=DATA.tasks.filter(t=>t.id!==id);saveData(DATA);renderTasks()}
+function renderTasks(){
+  const list=document.getElementById('task-list');const tasks=ensure('tasks',[]);list.innerHTML='';
+  tasks.forEach(t=>{
+    const item=document.createElement('div');item.className='task-item'+(t.done?' done':'');
+    item.innerHTML=`<input type="checkbox" class="task-cb" ${t.done?'checked':''} onchange="toggleTask(${t.id})"><span class="task-text">${eh(t.text)}</span><button class="task-del" onclick="deleteTask(${t.id})">✕</button>`;
+    list.appendChild(item);
+  });
+  const done=tasks.filter(t=>t.done).length;const pct=tasks.length?Math.round(done/tasks.length*100):0;
+  document.getElementById('task-progress-fill').style.width=pct+'%';
+  document.getElementById('task-progress-pct').textContent=pct+'%';
+}
+initTasks();renderTasks();
+
+// ═══════════════════════════════
+//  FOCUS TIMER
+// ═══════════════════════════════
+let timerInterval=null,timerSeconds=25*60,timerMode='pomodoro',timerPhase='work',timerRunning=false,sessionStartSeconds=25*60;
+function setMode(m){
+  if(timerRunning){toast('STOP TIMER FIRST');return}
+  timerMode=m;
+  document.querySelectorAll('.mode-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('mode-'+m).classList.add('active');
+  document.getElementById('custom-row').style.display=m==='custom'?'flex':'none';
+  if(m==='pomodoro'){timerSeconds=25*60;timerPhase='work'}
+  else if(m==='deep'){timerSeconds=60*60;timerPhase='work'}
+  updateTimerDisplay();updateModeLabel();
+}
+function applyCustom(){const v=parseInt(document.getElementById('custom-min').value);if(!v||v<1){toast('ENTER VALID MINUTES');return}timerSeconds=v*60;sessionStartSeconds=timerSeconds;updateTimerDisplay();toast(`CUSTOM: ${v} MIN SET`)}
+function updateTimerDisplay(){const m=Math.floor(timerSeconds/60),s=timerSeconds%60;document.getElementById('timer-display').textContent=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`}
+function updateModeLabel(){const labels={pomodoro:timerPhase==='work'?'POMODORO // WORK SESSION':'POMODORO // BREAK TIME',deep:'DEEP WORK // FOCUS MODE',custom:'CUSTOM // FOCUS MODE'};document.getElementById('timer-mode-label').textContent=labels[timerMode]}
+function startTimer(){
+  if(timerRunning)return;timerRunning=true;sessionStartSeconds=timerSeconds;
+  document.getElementById('btn-start').style.display='none';document.getElementById('btn-pause').style.display='inline-block';
+  document.getElementById('timer-display').className='timer-digits running';
+  timerInterval=setInterval(()=>{timerSeconds--;updateTimerDisplay();if(timerSeconds<=0){clearInterval(timerInterval);timerRunning=false;onTimerComplete()}},1000);
+}
+function pauseTimer(){
+  if(!timerRunning)return;clearInterval(timerInterval);timerRunning=false;
+  document.getElementById('btn-start').style.display='inline-block';document.getElementById('btn-pause').style.display='none';
+  document.getElementById('timer-display').className='timer-digits paused';
+}
+function resetTimer(){
+  clearInterval(timerInterval);timerRunning=false;timerPhase='work';
+  if(timerMode==='pomodoro')timerSeconds=25*60;else if(timerMode==='deep')timerSeconds=60*60;
+  else{const v=parseInt(document.getElementById('custom-min').value)||25;timerSeconds=v*60}
+  document.getElementById('btn-start').style.display='inline-block';document.getElementById('btn-pause').style.display='none';
+  document.getElementById('timer-display').className='timer-digits';updateTimerDisplay();updateModeLabel();
+}
+function onTimerComplete(){
+  document.getElementById('timer-display').className='timer-digits';
+  document.getElementById('btn-start').style.display='inline-block';document.getElementById('btn-pause').style.display='none';
+  const minCompleted=Math.round(sessionStartSeconds/60),hrs=minCompleted/60;
+  ensure('totalFocusHrs',0);ensure('totalSessions',0);ensure('todayFocusDate','');ensure('todayFocusMin',0);ensure('longestFocusMin',0);
+  ensure('focusHistory',[]);
+  DATA.totalFocusHrs=+(DATA.totalFocusHrs+hrs).toFixed(2);DATA.totalSessions++;
+  if(minCompleted>DATA.longestFocusMin)DATA.longestFocusMin=minCompleted;
+  const today=getTodayKey();
+  if(DATA.todayFocusDate!==today){DATA.todayFocusDate=today;DATA.todayFocusMin=0}
+  DATA.todayFocusMin+=minCompleted;
+  // focus history entry
+  DATA.focusHistory.unshift({date:today,minutes:minCompleted,mode:timerMode,ts:Date.now()});
+  if(DATA.focusHistory.length>200)DATA.focusHistory=DATA.focusHistory.slice(0,200);
+  saveData(DATA);addXP(20,'FOCUS SESSION COMPLETE');renderFocusStats();renderStats();
+  toast(`SESSION COMPLETE // ${minCompleted} MIN`);checkAchievements();
+  if(timerMode==='pomodoro'){timerPhase=timerPhase==='work'?'break':'work';timerSeconds=timerPhase==='work'?25*60:5*60;updateTimerDisplay();updateModeLabel()}
+}
+function renderFocusStats(){
+  document.getElementById('total-focus-hrs').textContent=ensure('totalFocusHrs',0).toFixed(1);
+  document.getElementById('sessions-count').textContent=ensure('totalSessions',0);
+  const today=getTodayKey();document.getElementById('today-focus-min').textContent=DATA.todayFocusDate===today?ensure('todayFocusMin',0):0;
+}
+renderFocusStats();updateTimerDisplay();updateModeLabel();
+
+// ═══════════════════════════════
+//  FOCUS PAGE
+// ═══════════════════════════════
+function renderFocusPage(){
+  const fh=ensure('focusHistory',[]);
+  // weekly
+  const now=new Date();const weekAgo=new Date(now-7*864e5);
+  const monthAgo=new Date(now-30*864e5);
+  const weekMin=fh.filter(s=>new Date(s.date)>=weekAgo).reduce((a,s)=>a+s.minutes,0);
+  const monthMin=fh.filter(s=>new Date(s.date)>=monthAgo).reduce((a,s)=>a+s.minutes,0);
+  const cards=[
+    {val:ensure('totalFocusHrs',0).toFixed(1),lbl:'TOTAL HOURS'},
+    {val:(weekMin/60).toFixed(1),lbl:'WEEK HOURS'},
+    {val:(monthMin/60).toFixed(1),lbl:'MONTH HOURS'},
+    {val:ensure('totalSessions',0),lbl:'TOTAL SESSIONS'},
+    {val:ensure('longestFocusMin',0),lbl:'LONGEST (MIN)'},
+    {val:ensure('todayFocusDate','')=== getTodayKey()?ensure('todayFocusMin',0):0,lbl:'TODAY (MIN)'},
+  ];
+  document.getElementById('focus-analytics-cards').innerHTML=cards.map(c=>`<div class="analytics-card"><div class="ac-val">${c.val}</div><div class="ac-lbl">${c.lbl}</div></div>`).join('');
+  // history
+  const list=document.getElementById('focus-hist-list');
+  if(!fh.length){list.innerHTML=`<div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-dim);text-align:center;padding:20px">// NO SESSIONS YET //</div>`;return}
+  list.innerHTML=fh.slice(0,100).map(s=>`
+    <div class="focus-hist-item">
+      <span class="fh-date">${s.date}</span>
+      <span class="fh-mode">${s.mode.toUpperCase()}</span>
+      <span class="fh-dur">${s.minutes} MIN</span>
+    </div>`).join('');
+}
+
+// ═══════════════════════════════
+//  COURSES
+// ═══════════════════════════════
+function initCourses(){if(!DATA.courses){DATA.courses=[{id:1,name:'CodeWithHarry Data Science',total:203,completed:0}];DATA.courseNextId=10;saveData(DATA)}}
+function addCourse(){
+  const name=document.getElementById('course-name-in').value.trim();const total=parseInt(document.getElementById('course-total-in').value);
+  if(!name||!total||total<1){toast('FILL COURSE FIELDS');return}
+  ensure('courseNextId',10);DATA.courses.push({id:DATA.courseNextId++,name,total,completed:0});
+  document.getElementById('course-name-in').value='';document.getElementById('course-total-in').value='';
+  saveData(DATA);renderCourses();toast('COURSE ADDED');
+}
+function updateCourseProgress(id,val){
+  const c=DATA.courses.find(c=>c.id===id);if(!c)return;
+  c.completed=Math.min(c.total,Math.max(0,parseInt(val)||0));saveData(DATA);renderCourses();
+}
+function deleteCourse(id){if(!confirm('Delete this course?'))return;DATA.courses=DATA.courses.filter(c=>c.id!==id);saveData(DATA);renderCourses()}
+function renderCourses(){
+  const list=document.getElementById('course-list');const courses=ensure('courses',[]);list.innerHTML='';
+  courses.forEach(c=>{
+    const pct=c.total?Math.round(c.completed/c.total*100):0;const cls=pct>=70?'high':pct>=30?'mid':'low';const rem=c.total-c.completed;
+    const item=document.createElement('div');item.className='course-item';
+    item.innerHTML=`<div class="course-header"><div class="course-name">${eh(c.name)}</div><div class="course-meta">${c.completed}/${c.total} CH</div></div>
+    <div class="course-bar-track"><div class="course-bar-fill ${cls}" style="width:${pct}%"></div></div>
+    <div class="course-footer"><div class="course-pct">${pct}%</div><div class="course-rem">${rem} LEFT</div><button class="task-del" onclick="deleteCourse(${c.id})">✕</button></div>
+    <div class="course-input-row"><input class="cyber-input" type="number" value="${c.completed}" min="0" max="${c.total}" onchange="updateCourseProgress(${c.id},this.value)" style="width:70px;text-align:center"><span style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-dim)">/ ${c.total}</span></div>`;
+    list.appendChild(item);
+  });
+}
+initCourses();renderCourses();
+
+// ═══════════════════════════════
+//  NOTES
+// ═══════════════════════════════
+function addNote(){
+  const title=document.getElementById('note-title-in').value.trim();const body=document.getElementById('note-body-in').value.trim();
+  if(!body){toast('ENTER NOTE CONTENT');return}
+  ensure('notes',[]);ensure('noteNextId',1);
+  DATA.notes.unshift({id:DATA.noteNextId++,title:title||'UNTITLED',body,date:new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'})});
+  document.getElementById('note-title-in').value='';document.getElementById('note-body-in').value='';
+  saveData(DATA);renderNotes();renderStats();toast('KNOWLEDGE STORED');
+}
+function deleteNote(id){DATA.notes=DATA.notes.filter(n=>n.id!==id);saveData(DATA);renderNotes();renderStats()}
+function editNote(id){
+  const n=DATA.notes.find(n=>n.id===id);if(!n)return;
+  const nb=prompt('Edit note:',n.body);if(nb===null)return;n.body=nb.trim()||n.body;saveData(DATA);renderNotes();toast('NOTE UPDATED');
+}
+function renderNotes(){
+  const list=document.getElementById('note-list');const q=document.getElementById('note-search').value.toLowerCase();
+  const notes=ensure('notes',[]).filter(n=>!q||n.title.toLowerCase().includes(q)||n.body.toLowerCase().includes(q));
+  list.innerHTML='';
+  if(!notes.length){list.innerHTML=`<div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-dim);padding:12px;text-align:center">// VAULT EMPTY //</div>`;return}
+  notes.forEach(n=>{
+    const item=document.createElement('div');item.className='note-item';
+    item.innerHTML=`<div class="note-title">${eh(n.title)}</div><div class="note-body">${eh(n.body)}</div>
+    <div class="note-actions"><button class="cyber-btn sm" onclick="editNote(${n.id})">EDIT</button><button class="cyber-btn sm red" onclick="deleteNote(${n.id})">DELETE</button><span class="note-date">${n.date}</span></div>`;
+    list.appendChild(item);
+  });
+}
+renderNotes();
+
+// ═══════════════════════════════
+//  HABITS (DYNAMIC)
+// ═══════════════════════════════
+let editingHabitId=null;
+function initHabits(){if(!DATA.habits){DATA.habits=[];DATA.habitNextId=1;saveData(DATA)}}
+function openAddHabit(){editingHabitId=null;document.getElementById('habit-modal-title').textContent='➕ ADD HABIT';document.getElementById('hm-name').value='';openModal('modal-habit')}
+function openEditHabit(id){const h=DATA.habits.find(h=>h.id===id);if(!h)return;editingHabitId=id;document.getElementById('habit-modal-title').textContent='✏️ EDIT HABIT';document.getElementById('hm-name').value=h.name;openModal('modal-habit')}
+function saveHabitModal(){
+  const name=document.getElementById('hm-name').value.trim();if(!name){toast('ENTER HABIT NAME');return}
+  if(editingHabitId!==null){const h=DATA.habits.find(h=>h.id===editingHabitId);if(h){h.name=name;saveData(DATA);renderHabits();closeModal('modal-habit');toast('HABIT UPDATED');return}}
+  ensure('habitNextId',1);DATA.habits.push({id:DATA.habitNextId++,name,streak:0,longest:0,history:{},lastDate:''});
+  saveData(DATA);renderHabits();closeModal('modal-habit');toast('HABIT ADDED');
+}
+function deleteHabit(id){if(!confirm('Delete this habit?'))return;DATA.habits=DATA.habits.filter(h=>h.id!==id);saveData(DATA);renderHabits()}
+function toggleHabit(id){
+  const h=DATA.habits.find(h=>h.id===id);if(!h)return;
+  const today=getTodayKey();const was=h.history[today];
+  if(!was){
+    h.history[today]=true;const yd=new Date();yd.setDate(yd.getDate()-1);const yk=yd.toISOString().slice(0,10);
+    if(h.lastDate===yk)h.streak++;else h.streak=1;h.lastDate=today;if(h.streak>h.longest)h.longest=h.streak;
+    addXP(5,`${h.name.toUpperCase()} DONE`);checkAchievements();
+  }else{h.history[today]=false;h.streak=Math.max(0,h.streak-1)}
+  saveData(DATA);renderHabits();renderStats();
+}
+function habitConsistency(h){const vals=Object.values(h.history);if(!vals.length)return 0;return Math.round(vals.filter(Boolean).length/vals.length*100)}
+function renderHabits(){
+  const grid=document.getElementById('habit-grid');const habits=ensure('habits',[]);const today=getTodayKey();grid.innerHTML='';
+  if(!habits.length){grid.innerHTML=`<div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-dim);text-align:center;padding:20px">// ADD YOUR FIRST HABIT //</div>`;return}
+  habits.forEach(h=>{
+    const done=!!h.history[today];const cons=habitConsistency(h);
+    const item=document.createElement('div');item.className='habit-item';
+    item.innerHTML=`<div class="habit-name">${eh(h.name)}</div><div class="habit-consistency">${cons}% CONS.</div><div class="habit-streak">🔥${h.streak}</div>
+    <button class="habit-toggle ${done?'done':''}" onclick="toggleHabit(${h.id})">${done?'✓ DONE':'MARK DONE'}</button>
+    <button class="task-del" onclick="openEditHabit(${h.id})" title="Edit">✏</button>
+    <button class="task-del" onclick="deleteHabit(${h.id})" title="Delete">✕</button>`;
+    grid.appendChild(item);
+  });
+}
+initHabits();renderHabits();
+
+// ═══════════════════════════════
+//  STUDY LOG
+// ═══════════════════════════════
+let editingLogId=null;
+function initStudyLog(){ensure('studyLog',[]);ensure('studyLogNextId',1)}
+function openStudyLogModal(){
+  editingLogId=null;
+  document.getElementById('sl-date').value=getTodayKey();
+  document.getElementById('sl-course').value='';document.getElementById('sl-topic').value='';
+  document.getElementById('sl-chapters').value='';document.getElementById('sl-notes').value='';
+  // prefill course dropdown
+  const courses=ensure('courses',[]).map(c=>c.name);
+  openModal('modal-study-log');
+}
+function saveStudyLog(){
+  const date=document.getElementById('sl-date').value;const course=document.getElementById('sl-course').value.trim();
+  const topic=document.getElementById('sl-topic').value.trim();const chapters=parseInt(document.getElementById('sl-chapters').value)||0;
+  const notes=document.getElementById('sl-notes').value.trim();
+  if(!date||!topic){toast('FILL DATE AND TOPIC');return}
+  ensure('studyLog',[]);ensure('studyLogNextId',1);
+  DATA.studyLog.unshift({id:DATA.studyLogNextId++,date,course:course||'General',topic,chapters,notes,ts:Date.now()});
+  // update course completed chapters if course found
+  if(course&&chapters>0){const c=DATA.courses.find(c=>c.name.toLowerCase()===course.toLowerCase());if(c){c.completed=Math.min(c.total,c.completed+chapters);renderCourses()}}
+  saveData(DATA);closeModal('modal-study-log');renderStudyLog();populateCourseFilter();renderStats();
+  addXP(15,'STUDY SESSION LOGGED');toast('SESSION LOGGED');checkAchievements();
+}
+function openEditLog(id){
+  const s=DATA.studyLog.find(s=>s.id===id);if(!s)return;editingLogId=id;
+  document.getElementById('el-date').value=s.date;document.getElementById('el-course').value=s.course;
+  document.getElementById('el-topic').value=s.topic;document.getElementById('el-chapters').value=s.chapters;
+  document.getElementById('el-notes').value=s.notes||'';
+  openModal('modal-edit-log');
+}
+function saveEditLog(){
+  const s=DATA.studyLog.find(s=>s.id===editingLogId);if(!s)return;
+  s.date=document.getElementById('el-date').value;s.course=document.getElementById('el-course').value.trim()||'General';
+  s.topic=document.getElementById('el-topic').value.trim();s.chapters=parseInt(document.getElementById('el-chapters').value)||0;
+  s.notes=document.getElementById('el-notes').value.trim();
+  saveData(DATA);closeModal('modal-edit-log');renderStudyLog();toast('SESSION UPDATED');
+}
+function deleteLog(id){if(!confirm('Delete this session?'))return;DATA.studyLog=DATA.studyLog.filter(s=>s.id!==id);saveData(DATA);renderStudyLog();renderStats()}
+function populateCourseFilter(){
+  const sel=document.getElementById('sl-filter-course');const cur=sel.value;
+  const courses=[...new Set(ensure('studyLog',[]).map(s=>s.course))];
+  sel.innerHTML='<option value="">All Courses</option>'+courses.map(c=>`<option value="${eh(c)}" ${cur===c?'selected':''}>${eh(c)}</option>`).join('');
+}
+function renderStudyLog(){
+  const list=document.getElementById('study-log-list');const q=document.getElementById('sl-search').value.toLowerCase();
+  const fc=document.getElementById('sl-filter-course').value;const fp=document.getElementById('sl-filter-period').value;const fd=document.getElementById('sl-filter-date').value;
+  const now=new Date();
+  let logs=ensure('studyLog',[]).filter(s=>{
+    if(q&&!s.topic.toLowerCase().includes(q)&&!s.course.toLowerCase().includes(q)&&!(s.notes&&s.notes.toLowerCase().includes(q)))return false;
+    if(fc&&s.course!==fc)return false;
+    if(fd&&s.date!==fd)return false;
+    if(fp==='week'){const d=new Date(s.date+'T00:00:00');if(now-d>7*864e5)return false}
+    if(fp==='month'){const d=new Date(s.date+'T00:00:00');if(now-d>30*864e5)return false}
+    return true;
+  });
+  list.innerHTML='';
+  if(!logs.length){list.innerHTML=`<div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-dim);text-align:center;padding:20px">// NO SESSIONS FOUND //</div>`;return}
+  logs.forEach(s=>{
+    const d=new Date(s.date+'T00:00:00');const months=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+    const dlbl=`${String(d.getDate()).padStart(2,'0')} ${months[d.getMonth()]} ${d.getFullYear()}`;
+    const entry=document.createElement('div');entry.className='log-entry';
+    entry.innerHTML=`<div class="log-line"><div class="log-dot"></div><div class="log-vert"></div></div>
+    <div class="log-card">
+      <div class="log-date">[${dlbl}]</div>
+      <div class="log-course">${eh(s.course)}</div>
+      <div class="log-topic">${eh(s.topic)}</div>
+      <div class="log-ch">▸ ${s.chapters} CHAPTER${s.chapters!==1?'S':''} COMPLETED</div>
+      ${s.notes?`<div class="log-notes-text">${eh(s.notes)}</div>`:''}
+      <div class="log-actions">
+        <button class="cyber-btn sm" onclick="openEditLog(${s.id})">EDIT</button>
+        <button class="cyber-btn sm red" onclick="deleteLog(${s.id})">DELETE</button>
+      </div>
+    </div>`;
+    list.appendChild(entry);
+  });
+}
+initStudyLog();
+
+// ═══════════════════════════════
+//  ANALYTICS
+// ═══════════════════════════════
+function getWeekStart(){const d=new Date();d.setDate(d.getDate()-d.getDay());d.setHours(0,0,0,0);return d}
+function renderAnalytics(){
+  const logs=ensure('studyLog',[]);const now=new Date();const weekAgo=new Date(now-7*864e5);const monthAgo=new Date(now-30*864e5);
+  const totalCh=logs.reduce((a,s)=>a+s.chapters,0);
+  const weekCh=logs.filter(s=>new Date(s.date+'T00:00:00')>=weekAgo).reduce((a,s)=>a+s.chapters,0);
+  const monthCh=logs.filter(s=>new Date(s.date+'T00:00:00')>=monthAgo).reduce((a,s)=>a+s.chapters,0);
+  // most productive day
+  const dayMap={};logs.forEach(s=>{dayMap[s.date]=(dayMap[s.date]||0)+s.chapters});
+  const topDay=Object.entries(dayMap).sort((a,b)=>b[1]-a[1])[0];
+  // most studied course
+  const cMap={};logs.forEach(s=>{cMap[s.course]=(cMap[s.course]||0)+s.chapters});
+  const topCourse=Object.entries(cMap).sort((a,b)=>b[1]-a[1])[0];
+  // avg per day
+  const uniqueDays=Object.keys(dayMap).length;const avgDay=uniqueDays?Math.round(totalCh/uniqueDays*10)/10:0;
+  const avgWeek=Math.round((weekCh/7)*10)/10;
+  document.getElementById('analytics-cards').innerHTML=[
+    {val:totalCh,lbl:'TOTAL CHAPTERS'},
+    {val:weekCh,lbl:'THIS WEEK'},
+    {val:monthCh,lbl:'THIS MONTH'},
+    {val:logs.length,lbl:'TOTAL SESSIONS'},
+    {val:avgDay,lbl:'AVG / DAY'},
+    {val:avgWeek,lbl:'AVG / WEEK'},
+    {val:topDay?topDay[0].slice(5):'—',lbl:'BEST DAY',sub:topDay?`${topDay[1]} CH`:''},
+    {val:topCourse?topCourse[0].split(' ')[0]+'...':'—',lbl:'TOP COURSE',sub:topCourse?`${topCourse[1]} CH`:''},
+  ].map(c=>`<div class="analytics-card"><div class="ac-val">${c.val}</div><div class="ac-lbl">${c.lbl}</div>${c.sub?`<div class="ac-sub">${c.sub}</div>`:''}</div>`).join('');
+}
+
+// ═══════════════════════════════
+//  HEATMAP
+// ═══════════════════════════════
+function renderHeatmap(){
+  const grid=document.getElementById('heatmap-grid');const logs=ensure('studyLog',[]);
+  const dayMap={};logs.forEach(s=>{dayMap[s.date]=(dayMap[s.date]||0)+s.chapters});
+  const topicMap={};logs.forEach(s=>{if(!topicMap[s.date])topicMap[s.date]=[];topicMap[s.date].push(s.topic)});
+  // build 52 weeks of cells
+  const today=new Date();today.setHours(0,0,0,0);
+  const start=new Date(today);start.setDate(start.getDate()-364);
+  // go back to Sunday
+  start.setDate(start.getDate()-start.getDay());
+  grid.innerHTML='';
+  const tooltip=document.getElementById('hm-tooltip');
+  let d=new Date(start);
+  while(d<=today){
+    const key=d.toISOString().slice(0,10);const ch=dayMap[key]||0;
+    const cls=ch===0?'':ch<=2?'lvl1':ch<=5?'lvl2':ch<=9?'lvl3':'lvl4';
+    const cell=document.createElement('div');cell.className='hm-cell'+(cls?' '+cls:'');
+    const dk=key;const topics=(topicMap[dk]||[]).join(', ')||'No study';
+    cell.addEventListener('mousemove',ev=>{
+      const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      const dd=new Date(dk+'T00:00:00');
+      tooltip.innerHTML=`<div style="color:var(--cyan);margin-bottom:4px">${dd.getDate()} ${months[dd.getMonth()]} ${dd.getFullYear()}</div><div>${topics}</div><div style="margin-top:4px;color:var(--green)">${ch} chapters</div>`;
+      tooltip.style.display='block';tooltip.style.left=(ev.clientX+12)+'px';tooltip.style.top=(ev.clientY-10)+'px';
+    });
+    cell.addEventListener('mouseleave',()=>{tooltip.style.display='none'});
+    grid.appendChild(cell);d.setDate(d.getDate()+1);
+  }
+}
+
+// ═══════════════════════════════
+//  ACHIEVEMENTS
+// ═══════════════════════════════
+const ACHIEVEMENTS=[
+  {id:'first_session',name:'FIRST SESSION',desc:'Complete your first focus session',icon:'🚀',check:d=>ensure('totalSessions',0)>=1},
+  {id:'xp_100',name:'100 XP',desc:'Earn 100 XP',icon:'⚡',check:d=>ensure('xp',0)>=100},
+  {id:'xp_500',name:'500 XP',desc:'Earn 500 XP',icon:'💥',check:d=>ensure('xp',0)>=500},
+  {id:'xp_1000',name:'1000 XP',desc:'Earn 1000 XP',icon:'🔥',check:d=>ensure('xp',0)>=1000},
+  {id:'streak_7',name:'7 DAY STREAK',desc:'Maintain a 7-day habit streak',icon:'📅',check:d=>ensure('habits',[]).some(h=>h.streak>=7)},
+  {id:'streak_30',name:'30 DAY STREAK',desc:'Maintain a 30-day habit streak',icon:'🏆',check:d=>ensure('habits',[]).some(h=>h.streak>=30)},
+  {id:'chapters_50',name:'50 CHAPTERS',desc:'Complete 50 chapters total',icon:'📚',check:d=>ensure('studyLog',[]).reduce((a,s)=>a+s.chapters,0)>=50},
+  {id:'chapters_100',name:'100 CHAPTERS',desc:'Complete 100 chapters total',icon:'🧠',check:d=>ensure('studyLog',[]).reduce((a,s)=>a+s.chapters,0)>=100},
+  {id:'chapters_500',name:'500 CHAPTERS',desc:'Complete 500 chapters total',icon:'⭐',check:d=>ensure('studyLog',[]).reduce((a,s)=>a+s.chapters,0)>=500},
+  {id:'focus_10h',name:'10 FOCUS HOURS',desc:'Accumulate 10 hours of focus',icon:'⏱️',check:d=>ensure('totalFocusHrs',0)>=10},
+  {id:'focus_50h',name:'50 FOCUS HOURS',desc:'Accumulate 50 hours of focus',icon:'🎯',check:d=>ensure('totalFocusHrs',0)>=50},
+  {id:'sessions_10',name:'10 SESSIONS',desc:'Complete 10 focus sessions',icon:'💎',check:d=>ensure('totalSessions',0)>=10},
+  {id:'tasks_50',name:'50 TASKS',desc:'Complete 50 daily tasks',icon:'✅',check:d=>ensure('totalTasksDone',0)>=50},
+  {id:'notes_10',name:'10 NOTES',desc:'Store 10 knowledge vault entries',icon:'📝',check:d=>ensure('notes',[]).length>=10},
+];
+function checkAchievements(){
+  ensure('unlockedAchievements',{});let newUnlock=null;
+  ACHIEVEMENTS.forEach(a=>{if(!DATA.unlockedAchievements[a.id]&&a.check(DATA)){DATA.unlockedAchievements[a.id]=Date.now();newUnlock=a}});
+  if(newUnlock){saveData(DATA);showAchievementUnlock(newUnlock)}
+}
+function showAchievementUnlock(a){
+  const wrap=document.getElementById('achievement-anim-wrap');
+  const div=document.createElement('div');div.className='achievement-unlock-anim';
+  div.innerHTML=`<div class="achievement-unlock-inner">
+    <div style="font-size:48px;margin-bottom:12px">${a.icon}</div>
+    <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--orange);letter-spacing:4px;margin-bottom:8px">ACHIEVEMENT UNLOCKED</div>
+    <div style="font-family:'Orbitron',monospace;font-size:16px;color:var(--cyan);margin-bottom:6px">${a.name}</div>
+    <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-dim)">${a.desc}</div>
+  </div>`;
+  wrap.appendChild(div);setTimeout(()=>div.remove(),3200);
+}
+function renderAchievements(){
+  ensure('unlockedAchievements',{});
+  document.getElementById('achievements-grid').innerHTML=ACHIEVEMENTS.map(a=>{
+    const unlocked=!!DATA.unlockedAchievements[a.id];
+    return`<div class="achievement-card ${unlocked?'unlocked':'locked'}">
+      <div class="ach-icon">${a.icon}</div>
+      <div class="ach-name">${a.name}</div>
+      <div class="ach-desc">${a.desc}</div>
+      ${unlocked?`<div class="ach-unlocked-label">✓ UNLOCKED</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════
+//  STATS
+// ═══════════════════════════════
+function renderStats(){
+  document.getElementById('stat-tasks').textContent=ensure('totalTasksDone',0);
+  document.getElementById('stat-focus').textContent=ensure('totalFocusHrs',0).toFixed(1);
+  const habits=ensure('habits',[]);
+  document.getElementById('stat-streak').textContent=habits.reduce((m,h)=>Math.max(m,h.streak),0);
+  document.getElementById('stat-longest').textContent=habits.reduce((m,h)=>Math.max(m,h.longest),0);
+  document.getElementById('stat-xp').textContent=ensure('xp',0);
+  document.getElementById('stat-notes').textContent=ensure('notes',[]).length;
+  document.getElementById('stat-chapters').textContent=ensure('studyLog',[]).reduce((a,s)=>a+s.chapters,0);
+  document.getElementById('stat-sessions').textContent=ensure('studyLog',[]).length;
+}
+renderStats();
+
+// ═══════════════════════════════
+//  DATA SAFETY
+// ═══════════════════════════════
+function exportData(){
+  const blob=new Blob([JSON.stringify(DATA,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`genrun-backup-${getTodayKey()}.json`;a.click();
+  toast('DATA EXPORTED');
+}
+function importData(input){
+  const file=input.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{const d=JSON.parse(e.target.result);DATA=d;saveData(DATA);location.reload()}
+    catch{toast('INVALID JSON FILE')}
+  };reader.readAsText(file);
+}
+function confirmReset(){
+  if(confirm('⚠️ RESET ALL DATA?\n\nThis will permanently delete everything. This cannot be undone.\n\nType OK to confirm.')){
+    localStorage.removeItem(SK);location.reload();
+  }
+}
+function updateStorageSize(){
+  const raw=localStorage.getItem(SK)||'';
+  const kb=(raw.length*2/1024).toFixed(1);
+  document.getElementById('storage-size').textContent=`${kb} KB / ~5MB limit`;
+}
+
+// ═══════════════════════════════
+//  UTIL
+// ═══════════════════════════════
+function eh(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+
+// ═══════════════════════════════
+//  AUTO SAVE + MIDNIGHT RESET
+// ═══════════════════════════════
+document.addEventListener('visibilitychange',()=>{if(document.hidden)saveData(DATA)});
+setInterval(()=>{
+  const today=getTodayKey();
+  if(DATA.tasksDay!==today){DATA.tasks=DEFAULT_TASKS.map((t,i)=>({id:i,text:t,done:false}));DATA.tasksDay=today;DATA.taskNextId=DEFAULT_TASKS.length;saveData(DATA);renderTasks();toast('NEW DAY // MISSIONS RESET')}
+},60000);
+
+// ═══════════════════════════════
+//  INIT LOADER
+// ═══════════════════════════════
+setTimeout(()=>{const l=document.getElementById('loader');if(l){l.style.transition='opacity .5s';l.style.opacity='0';setTimeout(()=>l.style.display='none',500)}},2000);
+checkAchievements();
+</script>
+</body>
+</html>
