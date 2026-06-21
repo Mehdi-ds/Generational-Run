@@ -808,7 +808,7 @@ function pauseTimer(){
   document.getElementById('timer-display').className='timer-digits paused';
 }
 function resetTimer(){
-  clearInterval(timerInterval);timerRunning=false;timerPhase='work';
+  clearInterval(timerInterval);timerInterval=null;timerRunning=false;timerEndTime=null;timerPhase='work';
   if(timerMode==='pomodoro')timerSeconds=25*60;else if(timerMode==='deep')timerSeconds=60*60;
   else{const v=parseInt(document.getElementById('custom-min').value)||25;timerSeconds=v*60}
   document.getElementById('btn-start').style.display='inline-block';document.getElementById('btn-pause').style.display='none';
